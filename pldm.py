@@ -99,12 +99,10 @@ def pop(qF, pF, qB, pB, ρ0):
     return np.outer(qF + 1j * pF, qB-1j*pB) * ρ0
 
 # @jit(nopython=True)
-def runTraj(initR,initP,itraj):
+def runTraj(iR,iP,iF,iB,itraj):
     ## Parameters -------------
     NSteps = model.NSteps
     NStates = model.NStates
-    initStateF = model.initStateF  # Forward intial state
-    initStateB = model.initStateB  # Backward initial state
     stype = model.stype
     nskip = model.nskip
     #---------------------------
@@ -117,18 +115,18 @@ def runTraj(initR,initP,itraj):
     ρ[:,0] = np.linspace(0,model.totalSim,NSteps//nskip + pl)
     
     # Trajectory data
-    print(f"Simulating trajectory {itraj}")
+    print(f"Simulating trajectory {itraj+1}")
     start_time = time.time()
-    R, P = initR, initP
+    R, P = iR, iP
 
     # set propagator
     vv  = VelVer
 
     # Call function to initialize mapping variables
-    qF, qB, pF, pB = initMapping(NStates, initStateF, initStateB, stype) 
+    qF, qB, pF, pB = initMapping(NStates, iF, iB, stype) 
 
     # Set initial values of fictitious oscillator variables for future use
-    qF0, qB0, pF0, pB0 = qF[initStateF], qB[initStateB], pF[initStateF], pB[initStateB] 
+    qF0, qB0, pF0, pB0 = qF[iF], qB[iB], pF[iF], pB[iB] 
     ρ0 = 0.25 * (qF0 - 1j*pF0) * (qB0 + 1j*pB0)
     # HelTraj = model.Hel(R).reshape(NStates*NStates)
 
@@ -144,6 +142,6 @@ def runTraj(initR,initP,itraj):
         R, P, qF, qB, pF, pB = vv(R, P, qF, qB, pF, pB)
     
     end_time = time.time()
-    print("It took ",end_time-start_time,f" seconds to run the trajectory {itraj}")
+    print("It took ",end_time-start_time,f" seconds to run the trajectory {itraj+1}")
 
     return ρ

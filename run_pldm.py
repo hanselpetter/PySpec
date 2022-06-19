@@ -1,12 +1,36 @@
 import numpy as np
 import pldm as method
+import coupled_dimer as model
 
-TrajFolder = "/scratch/mmondal/2DES_focused/Trajectories/"
-for itraj in range(10):
-    init_bath = np.loadtxt(TrajFolder + f"/traj{itraj+1}/initial_bath_{itraj+1}.txt")
-    initR = init_bath[:,0]
-    initP = init_bath[:,1]
+def commutator(A,B):
+    "commutator of two matrix elements"
+    return A@B - B@A
 
-    ρ_traj  = method.runTraj(initR,initP,itraj+1)
-    PijFile = TrajFolder + f"/traj{itraj+1}/Pij_{itraj+1}.txt"
-    np.savetxt(PijFile,ρ_traj)
+def μx(ρ):
+    "operating μ on density matrix ρ"
+    return commutator(model.μ(),ρ)
+
+def impElement(pulseNumber,ρ):
+    "Finding the indices of the most important matrix elements"
+    mat = μx(ρ)
+    if pulseNumber == 1:
+        "Basically first pump or just needed for linear absorption"
+        non0 = np.array(np.where(mat!=0))
+        return non0[:,:(non0.shape[1]//2)].T
+    else:
+        "To be modified for selecting important element for 2nd pulse onwards"
+        return 0
+
+def simulate(pulseNumber,itraj,TrajFolder):
+    if pulseNumber == 1:
+        ρ = model.ρ0()
+        iE = impElement(pulseNumber,ρ)
+        ρi = {}
+        for i in range(iE.shape[1]):
+            iF, iB = iE[i][0], iE[i][1]
+            iBath = np.loadtxt(TrajFolder + f"{itraj+1}/initial_bath_{itraj+1}.txt")
+            iR, iP = iBath[:,0], iBath[:,1]
+            ρi[tuple(iE[i])] = method.runTraj(iR,iP,iF,iB,itraj)
+        return ρi
+    else:
+        return 0

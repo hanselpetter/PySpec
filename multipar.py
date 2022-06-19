@@ -1,19 +1,20 @@
 #!/software/anaconda3/2020.11/bin/python
-#SBATCH -p standard
-#SBATCH -o ind_traj_pldm.log
+#SBATCH -p action
+#SBATCH -o 3e2_5_20_mu_1e4_action.log
 #SBATCH --mem-per-cpu=2GB
 #SBATCH -t 48:00:00
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
-
-NARRAY = str(25) # number of jobs
-filename = "ind_traj_pldm"
 
 import os, sys
 import subprocess
 import time
 import numpy as np
 from pathlib import Path
+
+
+NARRAY = str(100) # number of jobs
+filename = "ind_traj_pldm"
 
 # JOBID = str(9591013)
 JOBID = str(os.environ["SLURM_JOB_ID"]) # get ID of this job
