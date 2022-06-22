@@ -47,9 +47,9 @@ def focusedMCSample(cdfMat):
 
 def one2two(mat,num):
     """converting 1D array index to 2D array index"""
-    fac = (num+1)//mat.shape[0]
-    rem = (num+1)%mat.shape[1]
-    return np.array([fac,rem])
+    rowIndex = num//(mat.shape[0])
+    columIndex = num%(mat.shape[1])
+    return np.array([rowIndex,columIndex])
 
 def focus(mat):
     """getting the initStateF and initStateB for the given matrix"""
