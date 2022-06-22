@@ -47,9 +47,9 @@ def focusedMCSample(cdfMat):
 
 def one2two(mat,num):
     """converting 1D array index to 2D array index"""
-    fac = num//mat.shape[0]
-    rem = num%mat.shape[1]
-    return np.array([fac-1,rem-1])
+    fac = (num+1)//mat.shape[0]
+    rem = (num+1)%mat.shape[1]
+    return np.array([fac,rem])
 
 def focus(mat):
     """getting the initStateF and initStateB for the given matrix"""
@@ -60,14 +60,3 @@ def focus(mat):
     trajWeight = rcdfMax*np.exp(1j*impElPhase)
     focusedEl = one2two(mat,impEl)
     return focusedEl, trajWeight
-
-def impElement(pulseNumber,ρ):
-    "Finding the indices of the most important matrix elements"
-    mat = μx(ρ)
-    if pulseNumber == 1:
-        "Basically first pump or just needed for linear absorption"
-        non0 = np.array(np.where(mat!=0))
-        return non0[:,:(non0.shape[1]//2)].T
-    else:
-        "To be modified for selecting important element for 2nd pulse onwards"
-        return 0
