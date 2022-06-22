@@ -9,7 +9,7 @@ K2au = 0.00000316678
 '''dtN -> nuclear time step (au)
     Nsteps -> number of nuclear time steps
     Total simulation time = Nsteps x dtN (au)'''
-totalSim = 10             # in fs
+totalSim = 300             # in fs
 dtN = 5.0                
 NSteps = int(totalSim/(dtN/fs2au)) + 1  
 
@@ -20,7 +20,7 @@ dtE = dtN/ESteps
     
 NStates = 4                 # number of electronic states
 M = 1                       # mass of nuclear particles (au)
-NTraj = 40                   # number of trajectories
+NTraj = 10000                   # number of trajectories
 nskip = 1                   # save data every nskip steps
 
 stype = "focused"

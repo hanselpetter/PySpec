@@ -33,7 +33,3 @@ np.savetxt("cj_50.txt",cj)
 # plt.scatter(range(len(ωj/ωc)),ωj/ωc,s=5)
 # plt.scatter(range(len(cj)),cj,s=5)
 # plt.show()
-
-
-
-
