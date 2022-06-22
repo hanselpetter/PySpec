@@ -15,9 +15,9 @@ def non0(mat):
     n0 = np.array(np.where(mat!=0))
     return n0[:,:(n0.shape[1])].T
 
-def genRho(rho):
+def genRho(ρ):
     "Generating the whole rho(n) from single matrix element propagation"
-    return rho + np.conjugate(rho.T)
+    return ρ + np.conjugate(ρ.T)
 
 def cdf(mat):
     "Generating a Cumulative Distribution of a matrix"
