@@ -99,9 +99,8 @@ def pop(qF, pF, qB, pB, ρ0):
     return np.outer(qF + 1j * pF, qB-1j*pB) * ρ0
 
 # @jit(nopython=True)
-def runTraj(iR,iP,iF,iB,itraj):
+def runTraj(iR,iP,iF,iB,itraj,NSteps):
     ## Parameters -------------
-    NSteps = model.NSteps
     NStates = model.NStates
     stype = model.stype
     nskip = model.nskip
