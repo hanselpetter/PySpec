@@ -111,7 +111,7 @@ def runTraj(iR,iP,iF,iB,itraj,NSteps):
         pl = 1
 
     ρ = np.zeros((NSteps//nskip + pl, 2*NStates*NStates+1))        # 2 is to store real and imaginary component seperately
-    ρ[:,0] = np.linspace(0,model.totalSim,NSteps//nskip + pl)
+    ρ[:,0] = np.arange(0,(NSteps//nskip + pl)*model.dtN,model.dtN)
     
     # Trajectory data
     print(f"Simulating trajectory {itraj+1}")
