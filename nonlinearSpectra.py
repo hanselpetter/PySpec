@@ -1,36 +1,26 @@
 import numpy as np
 from PLDM import pldm as method
 from PLDM import coupled_dimer as model
+import specFunctions as sF
 
-def commutator(A,B):
-    "commutator of two matrix elements"
-    return A@B - B@A
+μ_t0 = model.μ()
+ρ_t0 = model.ρ0()
+μx_t0 = sF.commutator(μ_t0,ρ_t0)
+n0 = sF.non0(μx_t0)
 
-def μx(ρ):
-    "operating μ on density matrix ρ"
-    return commutator(model.μ(),ρ)
+def simulate(itraj,TrajFolder):
 
-def impElement(pulseNumber,ρ):
-    "Finding the indices of the most important matrix elements"
-    mat = μx(ρ)
-    if pulseNumber == 1:
-        "Basically first pump or just needed for linear absorption"
-        non0 = np.array(np.where(mat!=0))
-        return non0[:,:(non0.shape[1]//2)].T
-    else:
-        "To be modified for selecting important element for 2nd pulse onwards"
-        return 0
+    """Initialising response matrix"""
+    R3 = np.zeros(model.NSteps1, model.NSteps2, model.NSteps3) 
 
-def simulate(pulseNumber,itraj,TrajFolder):
-    if pulseNumber == 1:
-        ρ = model.ρ0()
-        iE = impElement(pulseNumber,ρ)
-        ρi = {}
-        for i in range(iE.shape[1]):
-            iF, iB = iE[i][0], iE[i][1]
-            iBath = np.loadtxt(TrajFolder + f"{itraj+1}/initial_bath_{itraj+1}.txt")
-            iR, iP = iBath[:,0], iBath[:,1]
-            ρi[tuple(iE[i])] = method.runTraj(iR,iP,iF,iB,itraj)
-        return ρi
-    else:
-        return 0
+    """first loop over the non zero elements in [μ,ρ0]"""
+    for ij in range(n0.shape[1]):
+
+        """Forward and backward focused states for first PLDM run"""
+        iF0, iB0 = n0[ij][0], n0[ij][1]
+        iBath = np.loadtxt(TrajFolder + f"{itraj+1}/initial_bath_{itraj+1}.txt")
+        iR, iP = iBath[:,0], iBath[:,1]
+        R3[:,0,0] = method.runTraj(iR, iP, iF0, iB0, itraj, model.NSteps1)
+
+
+
