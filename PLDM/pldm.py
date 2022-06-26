@@ -110,6 +110,8 @@ def runTraj(iR,iP,iF,iB,itraj,NSteps):
     else :
         pl = 1
 
+    RArr = np.zeros((NSteps//nskip + pl, model.NR))
+    PArr = np.zeros((NSteps//nskip + pl, model.NR))
     ρ = np.zeros((NSteps//nskip + pl, 2*NStates*NStates+1))        # 2 is to store real and imaginary component seperately
     ρ[:,0] = np.arange(0,(NSteps//nskip + pl)*model.dtN,model.dtN)
     
@@ -138,9 +140,10 @@ def runTraj(iR,iP,iF,iB,itraj,NSteps):
             ρ[iskip,1:] += np.hstack((PijtReal.flatten(),PijtImag.flatten()))
             iskip += 1
         #-------------------------------------------------------
+        RArr[i,:], PArr[i,:] = R, P
         R, P, qF, qB, pF, pB = vv(R, P, qF, qB, pF, pB)
     
     end_time = time.time()
     print("It took ",end_time-start_time,f" seconds to run the trajectory {itraj+1}")
 
-    return ρ
+    return ρ, RArr, PArr
