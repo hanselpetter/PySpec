@@ -38,29 +38,52 @@ def simulate(itraj,TrajFolder):
         iR, iP = iBath[:,0], iBath[:,1]
         ρij_t1, r_t1, p_t1 = method.runTraj(iR, iP, iF0, iB0, itraj, model.NSteps1)
 
-        for t1Index in range(model.NSteps1):                                               # Can be parallelised at this level
 
-            """extracting ρ(t1Index) from ρijT1"""
+        for t1Index in range(model.NSteps1):                                               # Can be parallelised at this level
+            """Second laser pulse"""
+
+            """extracting ρ(t1Index) from ρij_t1"""
             ρ_t1Re = ρij_t1[t1Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
             ρ_t1Im = ρij_t1[t1Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
             ρ_t1 = ρ_t1Re + 1j*ρ_t1Im
 
             """Focusing to get the iF and iB for next PLDM and traj weight of current trajectory run"""
             μx_t1 = sF.commutator(μ_t0,ρ_t1)
-            focusedEl_t1, trajWeight = foc.focus(μx_t1)
+            focusedEl_t1, trajWeight_t1 = foc.focus(μx_t1)
             iF_t1, iB_t1 = focusedEl_t1
-            wt[ij,t1Index,:] = trajWeight*μx_t1[iF_t1,iB_t1]  
+            wt[ij,t1Index,:] = trajWeight_t1 * μx_t1[iF_t1,iB_t1]  
 
             """2nd light-matter perturbation interation in Feynman diagram"""
             kside[ij,t1Index,:] = fD.KSide(n0[ij],focusedEl_t1)
             ksign[ij,t1Index,:] = fD.KSign(n0[ij],focusedEl_t1)
 
-            """position and momentum of bath at t∈(0,t1)"""
+            """position and momentum of bath at t∈[0,t1]"""
             iR_t1, iP_t1 = r_t1[t1Index,:], p_t1[t1Index,:]
 
             """"For each t∈[0,t1], running PLDM t->t2 by focusing ρ at t"""
             ρij_t2, r_t2, p_t2 = method.runTraj(iR_t1, iP_t1, iF_t1, iB_t1, itraj, model.NSteps2)
 
 
+            for t2Index in range(model.NSteps2):
+                """3rd laser pulse"""
 
+                """extracting ρ(t2Index) from ρij_t2"""
+                ρ_t2Re = ρij_t2[t2Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
+                ρ_t2Im = ρij_t2[t2Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
+                ρ_t2 = ρ_t2Re + 1j*ρ_t2Im
 
+                """Focusing to get the iF and iB for next PLDM and traj weight of current trajectory run"""
+                μx_t2 = sF.commutator(μ_t0,ρ_t2)
+                focusedEl_t2, trajWeight_t2 = foc.focus(μx_t2)
+                iF_t2, iB_t2 = focusedEl_t2
+                wt[ij,t1Index,t2Index] = trajWeight_t2 * μx_t1[iF_t2,iB_t2]
+
+                """3rd light-matter perturbation interation in Feynman diagram"""
+                kside[ij,t1Index,t2Index] = fD.KSide(n0[ij],focusedEl_t2)
+                ksign[ij,t1Index,t2Index] = fD.KSign(n0[ij],focusedEl_t2)
+
+                """position and momentum of bath at t∈[t1,t2]"""
+                iR_t2, iP_t2 = r_t2[t2Index,:], p_t2[t2Index,:]
+
+                """"For each t∈[t1,t2], running PLDM t->t3 by focusing ρ at t"""
+                ρij_t3, r_t3, p_t3 = method.runTraj(iR_t2, iP_t2, iF_t2, iB_t2, itraj, model.NSteps3)
