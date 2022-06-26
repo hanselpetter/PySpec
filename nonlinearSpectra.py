@@ -87,3 +87,16 @@ def simulate(itraj,TrajFolder):
 
                 """"For each t∈[t1,t2], running PLDM t->t3 by focusing ρ at t"""
                 ρij_t3, r_t3, p_t3 = method.runTraj(iR_t2, iP_t2, iF_t2, iB_t2, itraj, model.NSteps3)
+                wt3 = wt[ij,t1Index,t2Index]*wt[ij,t1Index,0]*wt[ij,0,0]
+                ksideVec = np.array([kside[ij,t1Index,t2Index],kside[ij,t1Index,0],kside[ij,0,0]])
+
+                for t3Index in range(model.NSteps3):
+                    """extracting ρ(t2Index) from ρij_t2"""
+                    ρ_t3Re = ρij_t3[t3Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
+                    ρ_t3Im = ρij_t3[t3Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
+                    ρ_t3 = ρ_t3Re + 1j*ρ_t3Im
+
+                    rt3 = (1j**3)*np.trace(μ_t0@(ρ_t3*wt3))*((-1)**np.sum(ksideVec))
+                    R3[t1Index,t2Index,t3Index] = rt3
+    
+    return R3, ksign
