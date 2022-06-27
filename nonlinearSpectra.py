@@ -92,15 +92,16 @@ def simulate(itraj,TrajFolder):
                 ksideVec = np.array([kside[ij,t1Index,t2Index],kside[ij,t1Index,0],kside[ij,0,0]])
 
                 for t3Index in range(model.NSteps3):
+                    print(t1Index, t2Index, t3Index)
                     """extracting ρ(t2Index) from ρij_t2"""
                     ρ_t3Re = ρij_t3[t3Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3Im = ρij_t3[t3Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3 = ρ_t3Re + 1j*ρ_t3Im
 
                     """3rd order response calculation with all weights"""
-                    rt3 = (1j**3) * np.trace(μ_t0 @ (ρ_t3*wt3)) * ((-1)**np.sum(ksideVec))
+                    rt3 = (1j**3) * np.trace(μ_t0 @ (ρ_t3*wt3)) * ((-1.0)**np.sum(ksideVec))
                     R3[t1Index,t2Index,t3Index] = rt3
         
-        R3_all[tuple(ij)] = [R3,ksign]
+        R3_all[tuple(n0[ij])] = [R3,ksign]
     
     return R3_all
