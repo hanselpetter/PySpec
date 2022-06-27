@@ -15,15 +15,15 @@ def simulate(itraj,TrajFolder):
 
     """Keeping track of feynman diagrams,
        For all times in 0->t1, ksign and kside will be the same"""
-    kside = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=int)
-    ksign = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=int)
+    kside = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
+    ksign = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
 
     """Initialising weight for each response"""
-    wt = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=complex)  
+    wt = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=complex)  
     R3_all = {}
     
     """first loop over the non zero elements in [μ,ρ0]"""
-    for ij in range(n0.shape[1]):
+    for ij in range(n0.shape[0]):
 
         """Initialising response and weight matrix"""
         R3 = np.zeros((model.NSteps1, model.NSteps2, model.NSteps3), dtype=complex)                                             # Response array
@@ -34,7 +34,7 @@ def simulate(itraj,TrajFolder):
 
         """first PLDM run for first laser pulse"""
         iF0, iB0 = n0[ij][0], n0[ij][1]
-        wt[ij,:,:] = np.ones((wt.shape[1],wt.shape[2]),dtype=complex) * μx_t0[iF0,iB0]                                            # initial weights according to μx_t0 elements
+        wt[ij,:,:] = np.ones((wt.shape[1],wt.shape[2]),dtype=complex) * μx_t0[iF0,iB0]                                          # initial weights according to μx_t0 elements
         iBath = np.loadtxt(TrajFolder + f"{itraj+1}/initial_bath_{itraj+1}.txt")
         iR, iP = iBath[:,0], iBath[:,1]
         ρij_t1, r_t1, p_t1 = method.runTraj(iR, iP, iF0, iB0, itraj, model.NSteps1)
