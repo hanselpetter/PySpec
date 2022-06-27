@@ -15,17 +15,18 @@ def simulate(itraj,TrajFolder):
 
     """Keeping track of feynman diagrams,
        For all times in 0->t1, ksign and kside will be the same"""
-    kside = np.zeros(n0.shape[1], model.NSteps1, model.NSteps2, dtype=int)
-    ksign = np.zeros(n0.shape[1], model.NSteps1, model.NSteps2, dtype=int)
+    kside = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=int)
+    ksign = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=int)
 
     """Initialising weight for each response"""
-    wt = np.zeros(n0.shape[1], model.NSteps1, model.NSteps2, dtype=complex)  
-
+    wt = np.zeros((n0.shape[1], model.NSteps1, model.NSteps2), dtype=complex)  
+    R3_all = {}
+    
     """first loop over the non zero elements in [μ,ρ0]"""
     for ij in range(n0.shape[1]):
 
         """Initialising response and weight matrix"""
-        R3 = np.zeros(model.NSteps1, model.NSteps2, model.NSteps3, dtype=complex)          # Response array
+        R3 = np.zeros((model.NSteps1, model.NSteps2, model.NSteps3), dtype=complex)          # Response array
         
         """Initialising the Feynman diagrams"""
         kside[ij,:,:] = fD.KSide(np.array([0,0]),n0[ij])                                   # side of perturbation
@@ -33,7 +34,7 @@ def simulate(itraj,TrajFolder):
 
         """first PLDM run for first laser pulse"""
         iF0, iB0 = n0[ij][0], n0[ij][1]
-        wt[ij,:,:] = np.ones(wt.shape[0])*μx_t0[iF0,iB0]                                   # initial weights according to μx_t0 elements
+        wt[ij,:,:] = np.ones((wt.shape[1],wt.shape[2]))*μx_t0[iF0,iB0]                                   # initial weights according to μx_t0 elements
         iBath = np.loadtxt(TrajFolder + f"{itraj+1}/initial_bath_{itraj+1}.txt")
         iR, iP = iBath[:,0], iBath[:,1]
         ρij_t1, r_t1, p_t1 = method.runTraj(iR, iP, iF0, iB0, itraj, model.NSteps1)
@@ -96,7 +97,10 @@ def simulate(itraj,TrajFolder):
                     ρ_t3Im = ρij_t3[t3Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3 = ρ_t3Re + 1j*ρ_t3Im
 
+                    """3rd order response calculation with all weights"""
                     rt3 = (1j**3)*np.trace(μ_t0@(ρ_t3*wt3))*((-1)**np.sum(ksideVec))
                     R3[t1Index,t2Index,t3Index] = rt3
+        
+        R3_all[tuple(ij)] = [R3,ksign]
     
-    return R3, ksign
+    return R3_all
