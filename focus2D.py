@@ -14,8 +14,8 @@ def pol(mat):
      output -> magnitude matrix, phase matrix of input matrix"""
     r = np.zeros((mat.shape[0],mat.shape[1]))
     theta = np.zeros((mat.shape[0],mat.shape[1]))
-    for i in mat.shape[0]:
-        for j in mat.shape[1]:
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
             r[i,j], theta[i,j] = cmath.polar(mat[i,j])
     return r,theta
 
