@@ -24,13 +24,13 @@ def simulate(itraj,TrajFolder):
 
     """Initialising weight for each response"""
     wt = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=complex)  
-    R3_all = {}
+    R3 = np.zeros((model.NSteps1, model.NSteps2, model.NSteps3), dtype=complex)
     
     """first loop over the non zero elements in [μ,ρ0]"""
     for ij in range(n0.shape[0]):
 
         """Initialising response and weight matrix"""
-        R3 = np.zeros((model.NSteps1, model.NSteps2, model.NSteps3), dtype=complex)                                             # Response array
+        # R3 = np.zeros((model.NSteps1, model.NSteps2, model.NSteps3), dtype=complex)                                             # Response array
         
         """Initialising the Feynman diagrams"""
         # kside[ij,:,:] = np.ones((kside.shape[1],kside.shape[2]),dtype=int) * fD.KSide(np.array([0,0]),n0[ij])                   # side of perturbation
@@ -52,13 +52,13 @@ def simulate(itraj,TrajFolder):
             ρ_t1Re = ρij_t1[t1Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
             ρ_t1Im = ρij_t1[t1Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
             ρ_t1 = ρ_t1Re + 1j*ρ_t1Im
-            ρ_t1 = (ρ_t1 + np.conjugate(ρ_t1).T)*np.sign(μx_t0)
+            ρ_t1 = ρ_t1 + np.conjugate(ρ_t1).T
 
             """Focusing to get the iF and iB for next PLDM and traj weight of current trajectory run"""
             μx_t1 = sF.commutator(μ_t0,ρ_t1)
             focusedEl_t1, trajWeight_t1 = foc.focusing(μx_t1)
             iF_t1, iB_t1 = focusedEl_t1
-            wt[ij,t1Index,:] *= np.ones(wt.shape[2],dtype=complex) * trajWeight_t1 * μx_t1[iF_t1,iB_t1]  
+            wt[ij,t1Index,:] *= np.ones(wt.shape[2],dtype=complex) * trajWeight_t1 # * μx_t1[iF_t1,iB_t1]  
 
             """2nd light-matter perturbation interation in Feynman diagram"""
             # kside[ij,t1Index,:] = np.ones(kside.shape[2]) * fD.KSide(n0[ij],focusedEl_t1)
@@ -79,13 +79,13 @@ def simulate(itraj,TrajFolder):
                 ρ_t2Re = ρij_t2[t2Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                 ρ_t2Im = ρij_t2[t2Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                 ρ_t2 = ρ_t2Re + 1j*ρ_t2Im
-                ρ_t2 = (ρ_t2 + np.conjugate(ρ_t2).T)*np.sign(comm_t1)
+                ρ_t2 = ρ_t2 + np.conjugate(ρ_t2).T
 
                 """Focusing to get the iF and iB for next PLDM and traj weight of current trajectory run"""
                 μx_t2 = sF.commutator(μ_t0,ρ_t2)
                 focusedEl_t2, trajWeight_t2 = foc.focusing(μx_t2)
                 iF_t2, iB_t2 = focusedEl_t2
-                wt[ij,t1Index,t2Index] *= trajWeight_t2 * μx_t1[iF_t2,iB_t2]
+                wt[ij,t1Index,t2Index] *= trajWeight_t2 # * μx_t1[iF_t2,iB_t2]
 
                 """3rd light-matter perturbation interation in Feynman diagram"""
                 # kside[ij,t1Index,t2Index] = fD.KSide(n0[ij],focusedEl_t2)
@@ -107,12 +107,12 @@ def simulate(itraj,TrajFolder):
                     ρ_t3Re = ρij_t3[t3Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3Im = ρij_t3[t3Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3 = ρ_t3Re + 1j*ρ_t3Im
-                    ρ_t3 = (ρ_t3 + np.conjugate(ρ_t3).T)*np.sign(comm_t2)
+                    ρ_t3 = ρ_t3 + np.conjugate(ρ_t3).T
 
                     """3rd order response calculation with all weights"""
-                    rt3 = (1j**3) * np.trace(μ_t0 @ (ρ_t3*wt3)) * ((-1.0)**np.sum(rsideVec))
-                    R3[t1Index,t2Index,t3Index] = rt3
+                    rt3 = (1j**3) * np.trace(μ_t0 @ (ρ_t3*wt3)) #* ((-1.0)**np.sum(rsideVec))
+                    R3[t1Index,t2Index,t3Index] += rt3
         
-        R3_all[tuple(n0[ij])] = [R3,0]
+        # R3_all[tuple(n0[ij])] = [R3,0]
     
-    return R3_all
+    return R3
