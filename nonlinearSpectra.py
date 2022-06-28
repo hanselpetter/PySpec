@@ -1,4 +1,3 @@
-from pickletools import read_int4
 import numpy as np
 from PLDM import pldm as method
 from PLDM import coupled_dimer as model
