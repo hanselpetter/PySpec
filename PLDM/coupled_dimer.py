@@ -9,9 +9,13 @@ K2au = 0.00000316678
 '''dtN -> nuclear time step (au)
     Nsteps -> number of nuclear time steps
     Total simulation time = Nsteps x dtN (au)'''
-totalSim = 300             # in fs
+Sim1Time = 5            # in fs
+Sim2Time = 5             # in fs
+Sim3Time = 5             # in fs
 dtN = 5.0                
-NSteps = int(totalSim/(dtN/fs2au)) + 1  
+NSteps1 = int(Sim1Time/(dtN/fs2au)) + 1  
+NSteps2 = int(Sim2Time/(dtN/fs2au)) + 1
+NSteps3 = int(Sim3Time/(dtN/fs2au)) + 1
 
 '''Esteps -> number of electronic time steps per nuclear time step
     dtE -> electronic time step (au)'''        
@@ -20,7 +24,7 @@ dtE = dtN/ESteps
     
 NStates = 4                 # number of electronic states
 M = 1                       # mass of nuclear particles (au)
-NTraj = 10000                   # number of trajectories
+NTraj = 1                   # number of trajectories
 nskip = 1                   # save data every nskip steps
 
 stype = "focused"
@@ -69,7 +73,7 @@ def dHel(R):
 def μ():
     "Dipole operator matrix"
     μmat = np.zeros((NStates,NStates))
-    μmat[0,1],μmat[0,2] = -5,1
+    μmat[0,1], μmat[0,2], μmat[3,1], μmat[3,2] = -1, 0.2, 0.2, -1
 
     return μmat+μmat.T
 
