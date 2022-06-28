@@ -1,11 +1,10 @@
 import numpy as np
-from PLDM import coupled_dimer as model
 
 def commutator(A,B):
     "commutator of two matrix elements"
     return A@B - B@A
 
-def μx(ρ):
+def μx(model,ρ):
     "operating μ on density matrix ρ"
     return commutator(model.μ(),ρ)
 
@@ -17,3 +16,7 @@ def non0(mat):
 def genRho(ρ):
     "Generating the whole rho(n) from single matrix element propagation"
     return ρ + np.conjugate(ρ.T)
+
+def impElement(model,ρ):
+    μx = commutator(model.μ(),ρ)
+    return np.array(np.where(μx!=0)).T
