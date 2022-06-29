@@ -43,14 +43,3 @@ def focusing(mat):
     trajWeight = rcdfMax*np.exp(1j*impElPhase)
     focusedEl = one2two(mat,impEl)
     return focusedEl, trajWeight
-
-def focus(fEl,mat):
-    """if focusing returns the same element, refocus"""
-    print(fEl)
-    print(sF.non0(mat))
-    print(fEl not in sF.non0(mat))
-    focusedEl, trajWeight = focusing(mat)
-    while fEl not in sF.non0(mat):
-        print("refocusing")
-        focusedEl, trajWeight = focusing(mat)
-    return focusedEl, trajWeight

@@ -116,8 +116,8 @@ def runTraj(iR,iP,iF,iB,itraj,NSteps):
     ρ[:,0] = np.arange(0,(NSteps//nskip + pl)*model.dtN,model.dtN)
     
     # Trajectory data
-    print(f"Simulating trajectory {itraj+1}")
-    start_time = time.time()
+    # print(f"Simulating trajectory {itraj+1}")
+    # start_time = time.time()
     R, P = iR, iP
 
     # set propagator
@@ -143,7 +143,7 @@ def runTraj(iR,iP,iF,iB,itraj,NSteps):
         RArr[i,:], PArr[i,:] = R, P
         R, P, qF, qB, pF, pB = vv(R, P, qF, qB, pF, pB)
     
-    end_time = time.time()
-    print("It took ",end_time-start_time,f" seconds to run the trajectory {itraj+1}")
+    # end_time = time.time()
+    # print("It took ",end_time-start_time,f" seconds to run the trajectory {itraj+1}")
 
     return ρ, RArr, PArr

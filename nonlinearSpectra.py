@@ -1,4 +1,6 @@
 import numpy as np
+import time
+
 from PLDM import pldm as method
 from PLDM import coupled_dimer as model
 import specFunctions as sF
@@ -17,9 +19,7 @@ def simulate(itraj,TrajFolder):
 
     """Keeping track of feynman diagrams,
        For all times in 0->t1, ksign and kside will be the same"""
-    # kside = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
-    # ksign = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
-    rInt = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
+    # rInt = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=int)
 
     """Initialising weight for each response"""
     wt = np.zeros((n0.shape[0], model.NSteps1, model.NSteps2), dtype=complex)  
@@ -34,7 +34,7 @@ def simulate(itraj,TrajFolder):
         """Initialising the Feynman diagrams"""
         # kside[ij,:,:] = np.ones((kside.shape[1],kside.shape[2]),dtype=int) * fD.KSide(np.array([0,0]),n0[ij])                   # side of perturbation
         # ksign[ij,:,:] = np.ones((ksign.shape[1],ksign.shape[2]),dtype=int) * fD.KSign(np.array([0,0]),n0[ij])                   # sign of K-vector
-        rInt[ij,:,:] = np.ones((rInt.shape[1],rInt.shape[2]),dtype=int) * fD.rightInt(np.array([0,0]),n0[ij])
+        # rInt[ij,:,:] = np.ones((rInt.shape[1],rInt.shape[2]),dtype=int) * fD.rightInt(np.array([0,0]),n0[ij])
 
         """first PLDM run for first laser pulse"""
         iF0, iB0 = n0[ij][0], n0[ij][1]
@@ -45,6 +45,7 @@ def simulate(itraj,TrajFolder):
 
 
         for t1Index in range(model.NSteps1):                                                                                    # Can be parallelised at this level
+            start_time = time.time()
             """Second laser pulse"""
 
             """extracting ρ(t1Index) from ρij_t1"""
@@ -62,7 +63,7 @@ def simulate(itraj,TrajFolder):
             """2nd light-matter perturbation interation in Feynman diagram"""
             # kside[ij,t1Index,:] = np.ones(kside.shape[2]) * fD.KSide(n0[ij],focusedEl_t1)
             # ksign[ij,t1Index,:] = np.ones(ksign.shape[2]) * fD.KSign(n0[ij],focusedEl_t1)
-            rInt[ij,t1Index,:] = np.ones(rInt.shape[2]) * fD.rightInt(n0[ij],focusedEl_t1)
+            # rInt[ij,t1Index,:] = np.ones(rInt.shape[2]) * fD.rightInt(n0[ij],focusedEl_t1)
 
             """position and momentum of bath at t∈[0,t1]"""
             iR_t1, iP_t1 = r_t1[t1Index,:], p_t1[t1Index,:]
@@ -89,7 +90,7 @@ def simulate(itraj,TrajFolder):
                 """3rd light-matter perturbation interation in Feynman diagram"""
                 # kside[ij,t1Index,t2Index] = fD.KSide(n0[ij],focusedEl_t2)
                 # ksign[ij,t1Index,t2Index] = fD.KSign(n0[ij],focusedEl_t2)
-                rInt[ij,t1Index,t2Index] = fD.rightInt(focusedEl_t1,focusedEl_t2)
+                # rInt[ij,t1Index,t2Index] = fD.rightInt(focusedEl_t1,focusedEl_t2)
 
                 """position and momentum of bath at t∈[t1,t2]"""
                 iR_t2, iP_t2 = r_t2[t2Index,:], p_t2[t2Index,:]
@@ -98,10 +99,9 @@ def simulate(itraj,TrajFolder):
                 ρij_t3, r_t3, p_t3 = method.runTraj(iR_t2, iP_t2, iF_t2, iB_t2, itraj, model.NSteps3)
                 wt3 = wt[ij,t1Index,t2Index]
                 # ksideVec = np.array([kside[ij,t1Index,t2Index],kside[ij,t1Index,0],kside[ij,0,0]])
-                rsideVec = np.array([rInt[ij,t1Index,t2Index],rInt[ij,t1Index,0],rInt[ij,0,0]])
+                # rsideVec = np.array([rInt[ij,t1Index,t2Index],rInt[ij,t1Index,0],rInt[ij,0,0]])
 
                 for t3Index in range(model.NSteps3):
-                    print(t1Index, t2Index, t3Index)
                     """extracting ρ(t2Index) from ρij_t2"""
                     ρ_t3Re = ρij_t3[t3Index,1:(ρlen+1)].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
                     ρ_t3Im = ρij_t3[t3Index,(ρlen+1):].reshape(ρ_t0.shape[0],ρ_t0.shape[1])
@@ -111,7 +111,8 @@ def simulate(itraj,TrajFolder):
                     """3rd order response calculation with all weights"""
                     rt3 = (1j**3) * np.trace(μ_t0 @ (ρ_t3*wt3)) #* ((-1.0)**np.sum(rsideVec))
                     R3[t1Index,t2Index,t3Index] += rt3
-        
-        # R3_all[tuple(n0[ij])] = [R3,0]
+            
+            end_time = time.time()
+            print(f"It took {end_time-start_time} seconds to do calculation for t1 = {t1Index} step")
     
     return R3

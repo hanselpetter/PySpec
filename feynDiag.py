@@ -6,8 +6,6 @@ def KSide(prevEl,currEl):
     ketDiff = currEl[0]-prevEl[0]
     braDiff = currEl[1]-prevEl[1]
     relDiff = np.abs(braDiff)-np.abs(ketDiff)
-    print(prevEl,currEl)
-    print(int(np.sign(relDiff/np.abs(relDiff))))
     return int(np.sign(relDiff/np.abs(relDiff)))
 
 def KSign(prevEl,currEl):
@@ -17,8 +15,6 @@ def KSign(prevEl,currEl):
     ketDiff = prevEl[0]-currEl[0]
     braDiff = prevEl[1]-currEl[1]
     netDiff = ketDiff+braDiff
-    print(prevEl,currEl)
-    print((np.sign((kside*netDiff)/np.abs(kside*netDiff))))
     return int(np.sign((kside*netDiff)/np.abs(kside*netDiff)))
 
 def sigCombo():
