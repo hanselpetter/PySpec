@@ -36,3 +36,5 @@ for i in range(len(t2)):
             # cos_fact = np.cos(np.pi*t/(2*np.max(t)))
             int_func = exp_fact*R3t1t2ω3[:,i,j]
             R3ω1t2ω3[omega,i,j] = -2*np.sum(int_func)*dω
+
+np.savetxt("Response.txt",R3ω1t2ω3.flatten())
