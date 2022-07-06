@@ -1,5 +1,5 @@
 import numpy as np
-from numpy import random as rd
+from numba import jit
 
 fs2au = 41.341374575751
 cminv2au = 4.55633*1e-6
@@ -9,9 +9,13 @@ K2au = 0.00000316678
 '''dtN -> nuclear time step (au)
     Nsteps -> number of nuclear time steps
     Total simulation time = Nsteps x dtN (au)'''
-totalSim = 1000             # in fs
+Sim1Time = 100             # in fs
+Sim2Time = 100             # in fs
+Sim3Time = 100             # in fs
 dtN = 5.0                
-NSteps = int(totalSim/(dtN/fs2au)) + 1  
+NSteps1 = int(Sim1Time/(dtN/fs2au)) + 1  
+NSteps2 = int(Sim2Time/(dtN/fs2au)) + 1
+NSteps3 = int(Sim3Time/(dtN/fs2au)) + 1
 
 '''Esteps -> number of electronic time steps per nuclear time step
     dtE -> electronic time step (au)'''        
@@ -20,27 +24,28 @@ dtE = dtN/ESteps
     
 NStates = 4                 # number of electronic states
 M = 1                       # mass of nuclear particles (au)
-NTraj = 1000                 # number of trajectories
-nskip = 1                   # save data every nskip steps
+NTraj = 10                   # number of trajectories
+nskip = 1                   # save data every nskip steps of PLDM simulation
 
-stype = "focused"
+# skip steps for saving data of the response function
+nskip1 = 5                 
+nskip2 = 5
+nskip3 = 5
+
+stype = 0                   # Focused = 0, sampled = 1
 initStateF = 1
-initStateB = 1
+initStateB = 0
 
 '''Bath parameters'''
-cj = np.loadtxt("/Users/quantised_elious/Desktop/Project1/codes/Semiclassical_methods/SemiClassical-NAMD/bath_parameters/cj_50.txt")
-ωj = np.loadtxt("/Users/quantised_elious/Desktop/Project1/codes/Semiclassical_methods/SemiClassical-NAMD/bath_parameters/ωj_50.txt")
+cj = np.loadtxt("/scratch/mmondal/specTest/Bath/cj_50.txt")
+ωj = np.loadtxt("/scratch/mmondal/specTest/Bath/ωj_50.txt")
 NModes = len(cj)           # Number of bath modes per site
 NR = 2*NModes              # Total number of bath DOF 
 
-
+@jit(nopython=True)
 def Hel(R):
     '''Electronic diabatic Hamiltonian'''
-
-    Nstates = parameters.NStates
-    cj = parameters.cj
-    NModes = len(cj)
-    Vij = np.zeros((Nstates,Nstates))
+    Vij = np.zeros((NStates,NStates))
 
     ε = (np.array([-50,50])+10000)*cminv2au
     J12 = 100*cminv2au                      # electronic coupling between 10 and 01
@@ -54,18 +59,14 @@ def Hel(R):
 
     return Vij
 
+@jit(nopython=True)
 def dHel0(R):
     '''bath derivative of the state independent part of the Hamiltonian'''
-
-    ωj = parameters.ωj
     return (np.hstack((ωj,ωj))**2)*R
 
+@jit(nopython=True)
 def dHel(R):
     '''bath derivative of the state dependent part of Hamiltonian'''
-
-    NStates = parameters.NStates
-    cj = parameters.cj
-    NModes = len(cj)
     dVij = np.zeros((NStates,NStates,2*NModes))
     dVij[1,1,NModes:] = cj[:]
     dVij[2,2,:NModes] = cj[:]
@@ -73,25 +74,18 @@ def dHel(R):
 
     return dVij
 
-def initR():
-    '''Sampling the initial position and velocities of bath parameters from 
-       wigner distribution'''
+@jit(nopython=True)
+def μ():
+    "Dipole operator matrix"
+    μmat = np.zeros((NStates,NStates),dtype=np.complex128)
+    μmat[0,1], μmat[0,2], μmat[3,1], μmat[3,2] = -1, 0.2, 0.2, -1
 
-    Kb = 8.617333262*1e-5*eV2au/K2au        # Kb = 8.617333262 x 10^-5 eV/K
-    T = 300*K2au                            # Temperature in au
-    β = 1/(Kb*T)
-    ωj = parameters.ωj
-    NModes = len(ωj)
+    return μmat + μmat.T 
 
-    σR_wigner = 1/np.sqrt(2*ωj*np.tanh(β*ωj*0.5))
-    σP_wigner = np.sqrt(ωj/(2*np.tanh(β*ωj*0.5)))
-    μR_wigner = 0
-    μP_wigner = 0
+@jit(nopython=True)
+def ρ0():
+    "Initial density matrix"
+    ρ0mat = np.zeros((NStates,NStates),dtype=np.complex128)
+    ρ0mat[0,0] = 1
 
-    R = np.zeros(2*NModes)
-    P = np.zeros(2*NModes)
-    for dof in range(NModes):
-        R[dof],R[NModes+dof] = rd.normal(μR_wigner, σR_wigner[dof]), rd.normal(μR_wigner, σR_wigner[dof])
-        P[dof],P[NModes+dof] = rd.normal(μP_wigner, σP_wigner[dof]), rd.normal(μP_wigner, σP_wigner[dof])
-
-    return R, P
+    return ρ0mat 
