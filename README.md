@@ -1,3 +1,4 @@
-This code uses Partial Linearised Density matrix (PLDM) to compute the linear and nonlinear spectra of
-a given diabetic Hamiltonian. The basic PLDM structure of PLDM code is adapted from Arkajit Mandal's 
-Semiclassical NAMD repository (https://github.com/arkajitmandal/SemiClassical-NAMD) and the code is modified for spectroscopy calculations.
+## PySpec
+
+PySpec is a python based code for simulating linear and multi-dimensional spectroscopy for a given Diabatic Hamiltonian.
+The dynamics for the quantum subsystem under a given bath is done currently being done by focused-PLDM and this code is basically adapted from [Arkajit Mandal's code](https://github.com/arkajitmandal/SemiClassical-NAMD)
