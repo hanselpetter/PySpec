@@ -1,8 +1,12 @@
 import numpy as np
 from numpy import random as rd
 from numba import jit
-import coupled_dimer as model
+
 import os
+import sys
+sys.path.insert(0, "/scratch/mmondal/specTest/PLDM")
+
+import coupled_dimer as model
 
 @jit(nopython=True)
 def initR():
@@ -29,7 +33,7 @@ def initR():
 os.makedirs("Trajectories", exist_ok=True)
 os.chdir("Trajectories")
 for itraj in range(model.NTraj):
-    print(itraj)
+    print(itraj+1)
     os.makedirs(f"{itraj+1}", exist_ok=True)
     os.chdir(f"{itraj+1}")
     itrajR, itrajP = initR()

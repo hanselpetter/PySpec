@@ -27,9 +27,3 @@ cj = ωj * ((λs/(2*N))**0.5)
 
 np.savetxt("ωj_50.txt",ωj)
 np.savetxt("cj_50.txt",cj)
-
-# λ_check = 2*np.sum(cj**2/ωj**2)
-# print(λs-λ_check)
-# plt.scatter(range(len(ωj/ωc)),ωj/ωc,s=5)
-# plt.scatter(range(len(cj)),cj,s=5)
-# plt.show()
