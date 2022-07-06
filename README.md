@@ -1,4 +1,4 @@
-### PySpec
+# PySpec
 
 PySpec is a python based code for simulating linear and multi-dimensional spectroscopy for a given Diabatic 
 Hamiltonian. The dynamics for the quantum subsystem under a given bath is done currently being done by 
