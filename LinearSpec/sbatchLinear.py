@@ -1,14 +1,13 @@
 #!/software/anaconda3/2020.11/bin/python
-#SBATCH -p action
-#SBATCH --job-name=specproj
+#SBATCH -p standard
+#SBATCH --job-name=LinSpec
 #SBATCH --nodes=1 --ntasks=1
-#SBATCH --mem-per-cpu=4GB
+#SBATCH --mem-per-cpu=1GB
 #SBATCH -t 5-00:00:00
 #SBATCH --output=test_%A_%a.out
 #SBATCH --error=test_%A_%a.err
 
 import sys, os
-from tkinter import N
 sys.path.insert(0, "/scratch/mmondal/specTest/PLDM")
 sys.path.append(os.popen("pwd").read().split("/tmpdir")[0]) # include parent directory which has method and model files
 #-------------------------
@@ -30,11 +29,11 @@ NStates = model.NStates
 NTasks = NTraj//NArray
 
 for itraj in range((int(TASKID)-1)*NTasks,int(TASKID)*NTasks):
-    ρTraj = lS.simulate(itraj,TrajFolder)
-    for i in ρTraj.keys():
-        ρij = ρTraj[i]
-        PijFile  = TrajFolder +  f"{itraj+1}/{i[0]}{i[1]}.txt"
-        np.savetxt(PijFile,ρij)
+    Resp = lS.simulate(itraj,TrajFolder)
+    R1Refile  = TrajFolder +  f"{itraj+1}/R1Re.txt"
+    R1Imfile  = TrajFolder +  f"{itraj+1}/R1Im.txt"
+    np.savetxt(R1Refile,np.real(Resp))
+    np.savetxt(R1Imfile,np.imag(Resp))
 
 t1 = time.time()
 print("Total time: ", t1-t0)

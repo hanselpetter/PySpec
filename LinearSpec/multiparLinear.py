@@ -1,7 +1,7 @@
 #!/software/anaconda3/2020.11/bin/python
-#SBATCH -p action
+#SBATCH -p standard
 #SBATCH -o linearSpec.log
-#SBATCH --mem-per-cpu=4GB
+#SBATCH --mem-per-cpu=1GB
 #SBATCH -t 5-00:00:00
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
