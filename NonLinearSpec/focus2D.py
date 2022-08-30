@@ -3,14 +3,6 @@ from numba import jit
 import cmath
 
 @jit(nopython=True)
-def cdf(mat):
-    "Generating a Cumulative Distribution of a matrix with its elements"
-    cum = np.cumsum(mat)
-    maxVal = np.max(cum)
-    cum /= maxVal
-    return cum, maxVal
-
-@jit(nopython=True)
 def pol(mat):
     """complex matrix is polar form
      input -> matrix,
@@ -21,6 +13,14 @@ def pol(mat):
         for j in range(mat.shape[1]):
             r[i,j], theta[i,j] = cmath.polar(mat[i,j])
     return r,theta
+
+@jit(nopython=True)
+def cdf(mat):
+    "Generating a Cumulative Distribution of a matrix with its elements"
+    cum = np.cumsum(mat)
+    maxVal = np.max(cum)
+    cum /= maxVal
+    return cum, maxVal
 
 @jit(nopython=True)
 def focusedMCSample(cdfMat):
@@ -45,13 +45,6 @@ def focusing(mat):
     rcdf, rcdfMax = cdf(rMat)
     impEl = focusedMCSample(rcdf)
     focusedEl = one2two(mat,impEl)
-    return focusedEl
-
-@jit(nopython=True)
-def trajWt(mat):
-    rMat, thetaMat = pol(mat)
-    rcdf, rcdfMax = cdf(rMat)
-    impEl = focusedMCSample(rcdf)
     impElPhase = thetaMat.flatten()[impEl]
     trajWeight = rcdfMax*np.exp(1j*impElPhase)
-    return trajWeight
+    return focusedEl, trajWeight
