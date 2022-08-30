@@ -5,7 +5,7 @@ Hamiltonian. The dynamics for the quantum subsystem under a given bath is done c
 focused-PLDM and this code is basically adapted from [Arkajit Mandal's code](https://github.com/arkajitmandal/SemiClassical-NAMD).
 
 ### Features
-- Simple PLDM population and operator dynamics (serial)
+- Simple PLDM population and operator dynamics (serial and parallel)
 - Linear Absorption (serial and parallel)
 - 2D spectra (serial and parallel)
 
