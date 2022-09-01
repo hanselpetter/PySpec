@@ -5,7 +5,6 @@ from mpi4py import MPI
 import os
 import sys
 
-# sys.path.insert(0, "/scratch/mmondal/specTest/specMPItest")
 import coupled_dimer as model
 
 comm = MPI.COMM_WORLD
@@ -41,11 +40,8 @@ def initR():
         for site in range(model.NR//model.NModes):
             R[site*model.NModes + dof] = rd.normal(μR_wigner, σR_wigner[dof])
             P[site*model.NModes + dof] = rd.normal(μP_wigner, σP_wigner[dof])
-        # R[dof],R[model.NModes+dof] = rd.normal(μR_wigner, σR_wigner[dof]), rd.normal(μR_wigner, σR_wigner[dof])
-        # P[dof],P[model.NModes+dof] = rd.normal(μP_wigner, σP_wigner[dof]), rd.normal(μP_wigner, σP_wigner[dof])
     return R, P
 
-os.makedirs(TrajDir, exist_ok=True)
 os.chdir(TrajDir)
 for itraj in TaskArray:
     print(itraj+1)

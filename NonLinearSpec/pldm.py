@@ -101,8 +101,6 @@ def runTraj(iR,iP,iF,iB,NSteps):
     NStates = model.NStates
     stype = model.stype
     nskip = model.nskip
-
-    
     #---------------------------
     if NSteps%nskip == 0:
         pl = 0

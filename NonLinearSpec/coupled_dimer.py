@@ -10,7 +10,7 @@ K2au = 0.00000316678
     Nsteps -> number of nuclear time steps
     Total simulation time = Nsteps x dtN (au)'''
 Sim1Time = 300             # in fs
-Sim2Time = 300             # in fs
+Sim2Time = 0.5             # in fs
 Sim3Time = 300             # in fs
 dtN = 40.0                
 NSteps1 = int(Sim1Time/(dtN/fs2au)) + 1  
@@ -19,7 +19,7 @@ NSteps3 = int(Sim3Time/(dtN/fs2au)) + 1
 
 '''Esteps -> number of electronic time steps per nuclear time step
     dtE -> electronic time step (au)'''        
-ESteps = 80              
+ESteps = 120              
 dtE = dtN/ESteps 
     
 NStates = 4                 # number of electronic states

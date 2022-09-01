@@ -4,7 +4,7 @@ import sys
 
 import pldm as method
 import coupled_dimer as model
-import specFunctionsV2 as sF
+import specFunctions as sF
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()

@@ -4,8 +4,8 @@ from mpi4py import MPI
 import sys
 
 import coupled_dimer as model
-import specFunctionsV2 as sF
-import secondLaserV2 as sL
+import specFunctions as sF
+import secondLaser as sL
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -42,5 +42,5 @@ comm.Reduce(R3,recvBuff,op=MPI.SUM,root=0)
 et = time.time()
 
 if comm.rank == 0:
-    np.savetxt(TrajFolder + f"R3_{NTraj}_10.txt",np.array([np.real(recvBuff).flatten(),np.imag(recvBuff).flatten()]).T) 
+    np.savetxt(TrajFolder + f"R3_dimer.txt",np.array([np.real(recvBuff).flatten(),np.imag(recvBuff).flatten()]).T) 
     print(f"Time taken = {et-st} seconds")

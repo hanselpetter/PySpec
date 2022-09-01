@@ -35,7 +35,7 @@ def savStpRem(NSteps, nskip):
     return pl
 
 @jit(nopython=True)
-def thirdPropagation(ij, ρij_t3, wt3, KSigns, R3, t1Index, t2Index):
+def thirdPropagation(ij, ρij_t3, wt3, ks1, ks2, ks3, R3, t1Index, t2Index):
     """calculating and saving response function for every nskip time steps"""
     
     for t3Index in range(model.NSteps3):
@@ -47,14 +47,15 @@ def thirdPropagation(ij, ρij_t3, wt3, KSigns, R3, t1Index, t2Index):
 
             """3rd order response calculation with all weights"""
             rt3 = (1j**3) * np.trace(np.dot(μ_t0,(ρ_t3*wt3)))
-            KVec= np.array([KSigns[ij,0,0],KSigns[ij,t1Index,0],KSigns[ij,t1Index,t2Index]],dtype=np.float64)
-            diagram = fD.getDiag(KVec)
+            kvector = np.zeros(3,dtype=np.float64)
+            kvector[0], kvector[1], kvector[2] = ks1, ks2, ks3
+            diagram = fD.getDiag(kvector)
             R3[diagram, t1Index//model.nskip1, t2Index//model.nskip2, t3Index//model.nskip3] += rt3
 
     return R3
 
 @jit(nopython=True)
-def secondPropagation(ij, ρij_t2, R_t2, P_t2, wt, KSigns, R3, t1Index):
+def secondPropagation(ij, ρij_t2, R_t2, P_t2, wt2, ks1, ks2, R3, t1Index):
 
     """3rd laser pulse"""
     for t2Index in range(model.NSteps2):
@@ -68,20 +69,20 @@ def secondPropagation(ij, ρij_t2, R_t2, P_t2, wt, KSigns, R3, t1Index):
             μx_t2 = np.dot(μ_t0,ρ_t2)-np.dot(ρ_t2,μ_t0)
             focusedEl_t2, trajWeight_t2 = foc.focusing(μx_t2)
             iF_t2, iB_t2 = focusedEl_t2
-            wt[ij,t1Index,t2Index] *= trajWeight_t2
+            wt3 = wt2 * trajWeight_t2
 
             """Determining the sign of k for the pulse"""
             iFmax, iFmin, iBmax, iBmin = fD.extremeIndices(ρ_t2)
-            KSigns[ij,t1Index,t2Index] = fD.kSign(iF_t2, iB_t2, iFmax, iFmin, iBmax, iBmin)
+            ks3 = fD.kSign(iF_t2, iB_t2, iFmax, iFmin, iBmax, iBmin)
 
             """position and momentum of bath at t∈[t1,t2]"""
             iR_t2, iP_t2 = R_t2[t2Index,:], P_t2[t2Index,:]
 
             """"For each t∈[t1,t2], running PLDM t->t3 by focusing ρ at t"""
             ρij_t3, R_t3, P_t3 = method.runTraj(iR_t2, iP_t2, iF_t2, iB_t2, model.NSteps3)
-            wt3 = wt[ij,t1Index,t2Index]
+            # wt3 = wt[ij,t1Index,t2Index]
 
-            R3third = thirdPropagation(ij, ρij_t3, wt3, KSigns, R3, t1Index, t2Index)
+            R3third = thirdPropagation(ij, ρij_t3, wt3, ks1, ks2, ks3, R3, t1Index, t2Index)
             R3 = R3third
 
     return R3

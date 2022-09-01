@@ -31,9 +31,9 @@ def kSign(fF, fB, iFmax, iFmin, iBmax, iBmin):
                 iBmax, iBmin = maximum and minimum backward initial indices of nonzero terms in ρ
        output -> sign of k based on the manifold of transition"""    
     if (fF > iFmax) or (fB < iBmin):
-        return 1
+        return 1.0
     if (fF < iFmin) or (fB > iBmax):
-        return -1
+        return -1.0
 
 @jit(nopython=True)
 def testK(k1,k2):
